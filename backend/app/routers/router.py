@@ -39,6 +39,14 @@ def get_entry(entry_id: int) -> dict:
     return entry
 
 
+@router.get("/{entry_id}/action-logs")
+def list_action_logs(entry_id: int) -> dict[str, Any]:
+    """路由动作记录：按时间倒序返回规则的启用/降级/关闭及注册联动回执。"""
+    if service.get_entry(entry_id) is None:
+        raise HTTPException(status_code=404, detail=f"路由规则 {entry_id} 不存在或已归档")
+    return {"module": "router", "entry_id": entry_id, "items": service.list_action_logs(entry_id)}
+
+
 @router.post("", response_model=ActionResult)
 def create_entry(payload: EntryPayload) -> ActionResult:
     """登记一条路由规则，缺字段时说明原因而不是静默丢弃。"""
